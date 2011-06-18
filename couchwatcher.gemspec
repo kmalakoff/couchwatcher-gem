@@ -19,9 +19,12 @@ Gem::Specification.new do |s|
   s.files = [
     ".document",
     "Gemfile",
+    "Gemfile.lock",
     "LICENSE.txt",
     "README.rdoc",
     "Rakefile",
+    "VERSION",
+    "couchwatcher.gemspec",
     "lib/couchwatcher.rb",
     "lib/couchwatcher/database_listener.rb",
     "test/helper.rb",
