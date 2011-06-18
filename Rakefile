@@ -15,13 +15,16 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "couchwatcher"
-  gem.homepage = "http://github.com/kmalakoff/couchwatcher"
+  gem.homepage = "http://github.com/kmalakoff/couchwatcher-gem"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{Couch document uploading utility}
+  gem.description = %Q{This gem provides a simple library to watch a couchdb database or specific documents and to receieve notifications when they change.}
   gem.email = "xmann.intl@gmail.com"
   gem.authors = ["Kevin Malakoff"]
-  # dependencies defined in Gemfile
+
+  gem.add_dependency 'json', '> 1.1.5'
+  gem.add_dependency 'typhoeus', '~>0.2'
+  gem.files.include 'lib/couchwatcher/database_listener.rb'
 end
 Jeweler::RubygemsDotOrgTasks.new
 
