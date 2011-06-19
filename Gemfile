@@ -2,6 +2,7 @@ source "http://rubygems.org"
 
 gem "json", "> 1.1.5"
 gem "typhoeus", "~> 0.2"
+gem "thor", "~>0.14.0"
 
 group :development do
   gem "shoulda", ">= 0"

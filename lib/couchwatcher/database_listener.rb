@@ -1,33 +1,29 @@
 require 'json'
+require 'thor/shell/basic'
 
 module CouchWatcher
 
   class DatabaseListener
     
-    def initialize(database_url, polling_interval = 3)
+    # shortcut to say
+    def say(message, color=nil)
+      @shell ||= Thor::Shell::Basic.new
+      @shell.say message, color
+    end
+
+    def initialize(database_url)
       @database_url = database_url
-      @polling_interval = polling_interval
       @last_sequence = nil
-      @connection_stopped = false
       @thread = nil
       @DatabaseCallback = Struct.new(:callback_proc, :include_document) 
       @database_callbacks = []
       @DocumentCallback = Struct.new(:document_id, :callback_proc, :include_document) 
       @document_callbacks = []
-      
-      data = get_info()
-      if data.nil?
-        puts "Error: the database cannnot be watched: #{@database_url}. Check that the couchdb is running, the database exists, and you have adequate permissions."
-        @connection_stopped = true
-        return
-      end 
-
-      @last_sequence = data["update_seq"]
     end
 
     def add_database_callback(callback_proc, include_document)
       if !@thread.nil?
-        puts "Error: cannot add callbacks to a running listener"
+        say "Error: cannot add callbacks to a running listener", :red
         return nil
       end
       
@@ -38,7 +34,7 @@ module CouchWatcher
     
     def remove_database_callback(database_callback)
       if !@thread.nil?
-        puts "Error: cannot remove callbacks from a running listener"
+        say "Error: cannot remove callbacks from a running listener", :red
         return
       end
 
@@ -47,7 +43,7 @@ module CouchWatcher
 
     def add_document_callback(document_id, callback_proc, include_document)
       if !@thread.nil?
-        puts "Error: cannot add callbacks to a running listener"
+        say "Error: cannot add callbacks to a running listener", :red
         return nil
       end
 
@@ -58,22 +54,37 @@ module CouchWatcher
     
     def remove_document_callback(document_callback)
       if !@thread.nil?
-        puts "Error: cannot remove callbacks from a running listener"
+        say "Error: cannot remove callbacks from a running listener", :red
         return
       end
 
       @document_callbacks.delete(document_callback)
     end
 
-    def start_watching
+    def start_watching(verbose, polling_interval)
       if !@thread.nil?
-        puts "Error: listener is already running listener"
+        say "Error: listener is already running listener", :red
         return
       end
 
-      puts "Database watching started for: #{@database_url}"
+      say "Database watching started for: #{@database_url}", :green if verbose
       @thread = Thread.new do
+        
+        # get the sequence
+        if @last_sequence.nil?
+          data = get_info()
+          if data.nil? || data["update_seq"].nil?
+            say "Error: the database cannnot be watched: #{@database_url}. Check that the couchdb is running, the database exists, and you have adequate permissions.", :red
+            return
+          end 
+
+          @last_sequence = data["update_seq"]
+        end
+
+        @connection_stopped = false
         while true
+
+          #puts "Checking heartbeat: #{@database_url} sequence: #{@last_sequence} connecte"
 
           # stopped the connection
           if @connection_stopped
@@ -82,17 +93,18 @@ module CouchWatcher
           # the sequence number has been returned so start polling
           elsif @last_sequence
             results = get_changes()
-          
-            # print a message
-#            puts "Get changes heartbeat"
-            puts "Change detected in database: #{@database_url}" if (results && !results.empty?)
-          
+                    
+            #puts "Checking heartbeat: #{@database_url} sequence: #{@last_sequence}"
+
             results.each do |result|
 
               document_id = result["id"]
               document_rev = result["changes"][0]["rev"]
               document = result["doc"]
             
+              # tell a change
+              say "Change detected in database: #{@database_url} document: #{document_id}", :green if verbose
+
               # call the database watchers
               @database_callbacks.each do |callback| 
                 if callback.include_document 
@@ -115,24 +127,22 @@ module CouchWatcher
             end
           end
         
-          sleep @polling_interval 
+          sleep polling_interval 
         end
       end
     end
 
-    def stop_watching
+    def stop_watching(verbose)
       if @thread.nil?
-        puts "Error: listener is is not running"
+        say "Error: cannot stop because listener is is not running", :red
         return
       end
 
       # give the thread time to finish
       @connection_stopped = true
-      sleep @polling_interval + 2
-
       @thread.kill
       @thread = nil
-      puts "Database watching stopped for: #{@database_url}"
+      say "Database watching stopped for: #{@database_url}", :green if verbose
     end
     
     private

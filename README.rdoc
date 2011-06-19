@@ -11,7 +11,7 @@ This gem provides a simple library to watch a couchdb database or specific docum
 
     couch_watcher = CouchWatcher::CouchWatcher.new()
     couch_watcher.add_database_watcher('http://localhost:5984/my_database', true) {|url, id, rev, doc| puts("DATABASE: Changes detected at: #{url} id: #{id} and rev: #{rev}. \n For document: #{doc.inspect}")}
-    couch_watcher.add_document_watcher('http://localhost:5984/my_database', '_design/mydocument', true) {|url, id, rev, doc| puts("DOCUMENT: Changes detected at: #{url} id: #{id} and rev: #{rev}. \n For document: #{doc.inspect}")}
+    couch_watcher.add_document_watcher('http://localhost:5984/my_database/_design/mydocument', true) {|url, id, rev, doc| puts("DOCUMENT: Changes detected at: #{url} id: #{id} and rev: #{rev}. \n For document: #{doc.inspect}")}
     couch_watcher.start_watching()
 
 == Contributing to couchwatcher

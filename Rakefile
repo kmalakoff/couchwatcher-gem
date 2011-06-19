@@ -24,6 +24,7 @@ Jeweler::Tasks.new do |gem|
 
   gem.add_dependency 'json', '> 1.1.5'
   gem.add_dependency 'typhoeus', '~>0.2'
+  gem.add_dependency 'thor', '~>0.14.0'
   gem.files.include 'lib/couchwatcher/database_listener.rb'
 end
 Jeweler::RubygemsDotOrgTasks.new
