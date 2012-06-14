@@ -26,6 +26,6 @@ This gem provides a simple library to watch a couchdb database or specific docum
 
 == Copyright
 
-Copyright (c) 2011 Kevin Malakoff. See LICENSE.txt for
+Copyright (c) 2011, 2012 Kevin Malakoff. See LICENSE.txt for
 further details.
 
